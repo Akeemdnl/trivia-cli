@@ -10,13 +10,12 @@ import (
 )
 
 type model struct {
-	input    textinput.Model
-	state    GameState
-	points   int
-	cursor   int
-	err      error
-	selected map[int]struct{}
-	question list.Model
+	input           textinput.Model
+	state           GameState
+	points          int
+	currentQuestion int
+	err             error
+	question        list.Model
 }
 
 type errMsg struct{ err error }
@@ -35,10 +34,11 @@ func initialModel() model {
 	input.Placeholder = "y/n ?"
 
 	return model{
-		input:    input,
-		state:    newGame,
-		points:   0,
-		question: list.New([]list.Item{}, list.NewDefaultDelegate(), 50, 50),
+		input:           input,
+		state:           newGame,
+		points:          0,
+		currentQuestion: 0,
+		question:        list.New([]list.Item{}, list.NewDefaultDelegate(), 50, 50),
 	}
 }
 
@@ -72,7 +72,7 @@ func (m model) View() string {
 	case playing:
 		return playingView(m)
 	case gameOver:
-		return gameOverView()
+		return gameOverView(m)
 	case gameError:
 		return gameErorView(m)
 	default:

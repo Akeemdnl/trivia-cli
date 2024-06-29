@@ -25,17 +25,18 @@ func errorView() string {
 }
 
 func playingView(m model) string {
-	// content := borderStyle.Render(textStyle.Render(m.questions[1]))
-	// return centerStyle.Render(content)
 	return m.question.View()
+
 }
 
-func gameOverView() string {
+func gameOverView(m model) string {
 	return centerStyle.Render(
 		fmt.Sprintf(
 			`
 			%s
+			%s
 			`,
+			textStyle.Render(fmt.Sprintf("Thanks for playing! You got %d points", m.points)),
 			textStyle.Render("Press ctrl+c / esc to quit"),
 		),
 	)

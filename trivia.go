@@ -3,10 +3,9 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
+	"math/rand/v2"
 	"net/http"
-	"reflect"
 	"time"
 
 	"github.com/charmbracelet/bubbles/list"
@@ -91,8 +90,13 @@ func handleInputKeys(msg tea.KeyMsg, m model) (tea.Model, tea.Cmd) {
 		return m, tea.Quit
 	case "enter":
 		inputVal := m.input.Value()
-		if inputVal == "y" || inputVal == "Y" {
-			startGame(&m)
+
+		if m.state == playing {
+			m.handleQuestion()
+			i := m.currentQuestion
+			m.setQuestion(questions[i], correctAnswers[i], incorrectAnswers[i])
+		} else if inputVal == "y" || inputVal == "Y" {
+			m.startGame()
 		} else if inputVal == "n" || inputVal == "N" {
 			m.state = gameOver
 			m.input.Reset()
@@ -118,8 +122,9 @@ func handleInputKeys(msg tea.KeyMsg, m model) (tea.Model, tea.Cmd) {
 	}
 }
 
-func startGame(m *model) {
+func (m *model) startGame() {
 	m.input.Reset()
+	m.points = 0
 
 	res, err := getQuestions()
 	if err != nil {
@@ -139,21 +144,40 @@ func startGame(m *model) {
 }
 
 func (m *model) setQuestion(question string, correctAnswer string, incorrectAnswers []string) {
-	var totalAnswers []string
 	m.question.Title = question
-	items := m.question.Items()
+	items := []list.Item{}
+	totalAnswers := incorrectAnswers
 
-	if items == nil {
-		items = []list.Item{}
+	min := 0
+	max := len(totalAnswers) + 1
+	index := rand.IntN(max-min) + min
+
+	// Randomize the position of the correct answer in the list
+	if index == len(totalAnswers) {
+		totalAnswers = append(totalAnswers, correctAnswer)
+	} else {
+		totalAnswers = append(totalAnswers[:index+1], totalAnswers[index:]...)
+		totalAnswers[index] = correctAnswer
 	}
-
-	fmt.Println(reflect.TypeOf(items))
-	totalAnswers = incorrectAnswers
-	totalAnswers = append(totalAnswers, correctAnswer)
 
 	for _, v := range totalAnswers {
 		items = append(items, item(v))
 	}
 
 	m.question.SetItems(items)
+}
+
+func (m *model) handleQuestion() {
+	answer := m.question.SelectedItem().(item)
+
+	if answer.Title() == correctAnswers[m.currentQuestion] {
+		m.points += 10
+	}
+
+	if m.currentQuestion == len(questions)-1 {
+		m.state = gameOver
+		return
+	}
+
+	m.currentQuestion++
 }
