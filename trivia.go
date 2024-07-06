@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"math/rand/v2"
 	"net/http"
@@ -93,7 +94,7 @@ func handleInputKeys(msg tea.KeyMsg, m model) (tea.Model, tea.Cmd) {
 		inputVal := m.input.Value()
 
 		if m.state == playing {
-			m.handleQuestion()
+			m.handlePoints()
 			i := m.currentQuestion
 			m.setQuestion(questions[i], correctAnswers[i], incorrectAnswers[i])
 		} else if inputVal == "y" || inputVal == "Y" {
@@ -168,17 +169,27 @@ func (m *model) setQuestion(question string, correctAnswer string, incorrectAnsw
 	m.question.SetItems(items)
 }
 
-func (m *model) handleQuestion() {
+func (m *model) handlePoints() {
 	answer := m.question.SelectedItem().(item)
 
 	if answer.Title() == correctAnswers[m.currentQuestion] {
-		m.points += 10
+		if m.streak {
+			points := m.points * 2
+			m.points += points
+			m.question.NewStatusMessage(fmt.Sprintf("+%d points! You're on a streak, keep it up!", points))
+		} else {
+			m.points += 10
+			m.question.NewStatusMessage(fmt.Sprintf("Correct! +%d points", 10))
+			m.streak = true
+		}
+	} else {
+		m.question.NewStatusMessage(fmt.Sprintf("Oops, correct answer is: %s", correctAnswers[m.currentQuestion]))
+		m.streak = false
 	}
 
 	if m.currentQuestion == len(questions)-1 {
 		m.state = gameOver
-		return
+	} else {
+		m.currentQuestion++
 	}
-
-	m.currentQuestion++
 }
