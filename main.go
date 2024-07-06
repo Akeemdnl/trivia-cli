@@ -13,6 +13,7 @@ type model struct {
 	input           textinput.Model
 	state           GameState
 	points          int
+	streakPoints    int
 	streak          bool
 	currentQuestion int
 	err             error
@@ -40,6 +41,7 @@ func initialModel() model {
 		input:           input,
 		state:           newGame,
 		points:          0,
+		streakPoints:    0,
 		streak:          false,
 		currentQuestion: 0,
 		question:        l,

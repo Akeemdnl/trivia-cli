@@ -185,16 +185,17 @@ func (m *model) handlePoints() {
 
 	if answer.Title() == correctAnswers[m.currentQuestion] {
 		if m.streak {
-			points := m.points * 2
-			m.points += points
-			m.question.NewStatusMessage(fmt.Sprintf("+%d points! You're on a streak, keep it up!", points))
+			m.streakPoints += 10
+			m.points += m.streakPoints
+			m.question.NewStatusMessage(fmt.Sprintf("+%d points! You're on a streak, keep it up! Total: %d", m.streakPoints, m.points))
 		} else {
 			m.points += 10
-			m.question.NewStatusMessage(fmt.Sprintf("Correct! +%d points", 10))
 			m.streak = true
+			m.question.NewStatusMessage(fmt.Sprintf("Correct! +%d points. Total: %d", 10, m.points))
 		}
 	} else {
 		m.question.NewStatusMessage(fmt.Sprintf("Oops, correct answer is: %s", correctAnswers[m.currentQuestion]))
+		m.streakPoints = 0
 		m.streak = false
 	}
 
