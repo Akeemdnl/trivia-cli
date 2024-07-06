@@ -32,13 +32,15 @@ func initialModel() model {
 	input.CharLimit = 30
 	input.Width = 30
 	input.Placeholder = "y/n ?"
+	l := list.New([]list.Item{}, list.NewDefaultDelegate(), 50, 50)
+	l.SetShowStatusBar(false)
 
 	return model{
 		input:           input,
 		state:           newGame,
 		points:          0,
 		currentQuestion: 0,
-		question:        list.New([]list.Item{}, list.NewDefaultDelegate(), 50, 50),
+		question:        l,
 	}
 }
 

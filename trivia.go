@@ -13,10 +13,9 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+// Game states
 const (
-	hotPink   = lipgloss.Color("#FF06B7")
-	triviaUrl = "https://the-trivia-api.com/v2/questions/"
-	newGame   = iota
+	newGame = iota
 	playing
 	gameOver
 	gameError
@@ -24,6 +23,8 @@ const (
 )
 
 var (
+	hotPink     = lipgloss.Color("#FF06B7")
+	triviaUrl   = "https://the-trivia-api.com/v2/questions/"
 	textStyle   = lipgloss.NewStyle().Foreground(hotPink)
 	centerStyle = lipgloss.NewStyle().Align(lipgloss.Center).Width(80)
 	stateName   = map[GameState]string{
