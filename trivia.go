@@ -14,6 +14,8 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+const triviaUrl = "https://the-trivia-api.com/v2/questions/"
+
 // Game states
 const (
 	newGame = iota
@@ -25,7 +27,6 @@ const (
 
 var (
 	hotPink     = lipgloss.Color("#FF06B7")
-	triviaUrl   = "https://the-trivia-api.com/v2/questions/"
 	textStyle   = lipgloss.NewStyle().Foreground(hotPink)
 	centerStyle = lipgloss.NewStyle().Align(lipgloss.Center).Width(80)
 	stateName   = map[GameState]string{
@@ -87,6 +88,10 @@ func getQuestions() ([]Response, error) {
 
 func handleInputKeys(msg tea.KeyMsg, m model) (tea.Model, tea.Cmd) {
 	switch msg.String() {
+	case "y", "Y":
+		if m.state == gameOver {
+			m.startGame()
+		}
 	case "esc", "ctrl+c":
 		m.state = quitting
 		return m, tea.Quit
@@ -113,20 +118,26 @@ func handleInputKeys(msg tea.KeyMsg, m model) (tea.Model, tea.Cmd) {
 		m.state = newGame
 		m.input.Reset()
 		return m, nil
-	default:
-		var inputCmd tea.Cmd
-		var questionCmd tea.Cmd
-
-		m.input, inputCmd = m.input.Update(msg)
-		m.question, questionCmd = m.question.Update(msg)
-		cmds := []tea.Cmd{inputCmd, questionCmd}
-		return m, tea.Batch(cmds...)
 	}
+
+	var inputCmd tea.Cmd
+	var questionCmd tea.Cmd
+
+	m.input, inputCmd = m.input.Update(msg)
+	m.question, questionCmd = m.question.Update(msg)
+	cmds := []tea.Cmd{inputCmd, questionCmd}
+	return m, tea.Batch(cmds...)
 }
 
 func (m *model) startGame() {
+	questions = nil
+	correctAnswers = nil
+	incorrectAnswers = nil
+
 	m.input.Reset()
+	m.question.NewStatusMessage("")
 	m.points = 0
+	m.currentQuestion = 0
 
 	res, err := getQuestions()
 	if err != nil {

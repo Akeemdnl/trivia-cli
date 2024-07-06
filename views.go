@@ -35,8 +35,10 @@ func gameOverView(m model) string {
 			`
 			%s
 			%s
+			%s
 			`,
 			textStyle.Render(fmt.Sprintf("Thanks for playing! You got %d points!", m.points)),
+			textStyle.Render("To play again, press y/Y"),
 			textStyle.Render("Press ctrl+c / esc to quit"),
 		),
 	)
