@@ -1,4 +1,4 @@
-module githib.com/Akeemdnl/trivia-cli
+module github.com/Akeemdnl/trivia-cli
 
 go 1.22.3
 
